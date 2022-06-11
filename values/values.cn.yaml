@@ -1,0 +1,108 @@
+# For gerneral test in China, 默认使用 CentOS 7 系统
+
+IHaveBackedUpAllMyLinstorResources: false
+global:
+  imagePullPolicy: IfNotPresent # empty pull policy means k8s default is used ("always" if tag == ":latest", "ifnotpresent" else)
+  setSecurityContext: true # Force non-privileged containers to run as non-root users
+# Dependency charts
+etcd:
+  enabled: false
+  persistentVolume:
+    enabled: true
+    storage: "1Gi"
+  replicas: 1 # How many instances of etcd will be added to the initial cluster.
+  resources: {} # resource requirements for etcd containers
+  image:
+    repository: daocloud.io/piraeus/etcd
+    tag: v3.4.15
+  affinity: {}
+  tolerations: []
+stork:
+  enabled: false
+  storkImage: daocloud.io/piraeus/stork:2.8.2
+  schedulerImage: daocloud.io/piraeus/kube-scheduler-amd64
+  schedulerTag: v1.23.4
+  replicas: 1
+  storkResources: {} # resources requirements for the stork plugin containers
+  schedulerResources: {} # resource requirements for the kube-scheduler containers
+  podsecuritycontext: {}
+csi:
+  enabled: true
+  pluginImage: daocloud.io/piraeus/piraeus-csi:v0.18.0
+  csiAttacherImage: daocloud.io/piraeus/csi-attacher:v3.4.0
+  csiLivenessProbeImage: daocloud.io/piraeus/livenessprobe:v2.5.0
+  csiNodeDriverRegistrarImage: daocloud.io/piraeus/csi-node-driver-registrar:v2.4.0
+  csiProvisionerImage: daocloud.io/piraeus/csi-provisioner:v3.1.0
+  csiSnapshotterImage: daocloud.io/piraeus/csi-snapshotter:v5.0.1
+  csiResizerImage: daocloud.io/piraeus/csi-resizer:v1.4.0
+  csiAttacherWorkerThreads: 10
+  csiProvisionerWorkerThreads: 10
+  csiSnapshotterWorkerThreads: 10
+  csiResizerWorkerThreads: 10
+  controllerreplicas: 1
+  nodeAffinity: {}
+  nodeTolerations: []
+  controllerAffinity: {}
+  controllerTolerations: []
+  enableTopology: true # k8s volume node affinity 
+  resources: {}
+  #   requests:
+  #     cpu: 500m
+  #     memory: 500Mi
+  kubeletPath: /var/lib/kubelet
+priorityClassName: ""
+drbdRepoCred: "" # <- Specify the kubernetes secret name here
+linstorSslMethod: "manual" # <- If set to 'helm' or 'cert-manager' the certificates will be generated automatically
+linstorHttpsControllerSecret: "" # <- name of secret containing linstor server certificates+key. See docs/security.md
+linstorHttpsClientSecret: "" # <- name of secret containing linstor client certificates+key. See docs/security.md
+controllerEndpoint: "" # <- override to the generated controller endpoint. use if controller is not deployed via operator
+psp:
+  privilegedRole: ""
+  unprivilegedRole: ""
+operator:
+  replicas: 1 # <- number of replicas for the operator deployment
+  image: daocloud.io/piraeus/piraeus-operator:v1.8.0
+  affinity: {}
+  tolerations: []
+  resources: {}
+  podsecuritycontext: {}
+  controller:
+    enabled: true
+    controllerImage: daocloud.io/piraeus/piraeus-server:v1.18.0-gui
+    dbConnectionURL: "k8s"
+    luksSecret: ""
+    dbCertSecret: ""
+    dbUseClientCert: false
+    sslSecret: ""
+    affinity: {}
+    tolerations: []
+    resources: {}
+      # limits:
+      #   cpu: 500m
+      #   memory: 500Mi
+    replicas: 1
+    additionalEnv: []
+    additionalProperties: {}
+  satelliteSet:
+    enabled: true
+    satelliteImage: daocloud.io/piraeus/piraeus-server:v1.18.0
+    storagePools: {}
+    sslSecret: ""
+    automaticStorageType: None
+    affinity: {}
+    tolerations: []
+    resources: {}
+      # limits:
+      #   cpu: 500m
+      #   memory: 500Mi
+    monitoringImage: daocloud.io/piraeus/drbd-reactor:v0.5.3
+    kernelModuleInjectionImage: daocloud.io/piraeus/drbd9-centos7:v9.1.6
+    kernelModuleInjectionMode: Compile
+    kernelModuleInjectionResources: {}
+    additionalEnv: []
+haController:
+  enabled: true
+  image: daocloud.io/piraeus/piraeus-ha-controller:v0.3.0
+  affinity: {}
+  tolerations: []
+  replicas: 1

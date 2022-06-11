@@ -1,0 +1,108 @@
+
+etcd:
+  enabled: false
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: node-role.kubernetes.io/master
+            operator: Exists
+  tolerations:
+  - effect: NoSchedule
+    operator: Exists
+stork:
+  enabled: false
+csi:
+  enabled: true
+  nodeAffinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: node-role.kubernetes.io/piraeus
+            operator: In
+            values:
+            - "satellite"
+            - "auxilary"
+  nodeTolerations:
+  - effect: NoSchedule
+    operator: Exists
+  controllerReplicas: 1
+  controllerAffinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: node-role.kubernetes.io/master
+            operator: Exists
+  controllerTolerations:
+  - effect: NoSchedule
+    operator: Exists
+  enableTopology: true # k8s volume node affinity 
+  kubeletPath: /var/snap/microk8s/common/var/lib/kubelet
+linstorSslMethod: "helm" # <- If set to 'helm' or 'cert-manager' the certificates will be generated automatically
+linstorHttpsMethod: "helm" # <- If set to 'helm' or 'cert-manager' the certificates will be generated automatically
+controllerEndpoint: "" # <- override to the generated controller endpoint. use if controller is not deployed via operator
+operator:
+  replicas: 1 # <- number of replicas for the operator deployment
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: node-role.kubernetes.io/master
+            operator: Exists
+  tolerations:
+  - effect: NoSchedule
+    operator: Exists
+  controller:
+    replicas: 1
+    enabled: true
+    dbConnectionURL: "k8s" # 使用 CRD
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+          - matchExpressions:
+            - key: node-role.kubernetes.io/master
+              operator: Exists
+    tolerations:
+    - operator: "Exists"
+      effect: "NoSchedule"
+  satelliteSet:
+    enabled: true
+    # storagePools:
+    #   lvmThinPools:
+    #   - name: DfltStorPool
+    #     thinVolume: thinpool
+    #     volumeGroup: linstor_thinpool
+    automaticStorageType: None
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+          - matchExpressions:
+            - key: node-role.kubernetes.io/piraeus
+              operator: In
+              values:
+              - "satellite"
+              - "auxilary"
+    tolerations:
+    - operator: Exists
+      effect: NoSchedule
+    kernelModuleInjectionMode: Compile
+    kernelModuleInjectionImage: daocloud.io/piraeus/drbd9-jammy:v9.1.7
+haController:
+  replicas: 1
+  enabled: true
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: node-role.kubernetes.io/master
+            operator: Exists
+  tolerations:
+  - operator: Exists
+    effect: NoSchedule

@@ -1,0 +1,6 @@
+make --dry-run --always-make --keep-going --print-directory
+make: Entering directory `/Users/alexz/Documents/Github/rafflescity/rafflescity'
+make: Leaving directory `/Users/alexz/Documents/Github/rafflescity/rafflescity'
+ 
+make: *** No targets specified and no makefile found.  Stop.
+

@@ -1,0 +1,31 @@
+# Service to External Linstor Controller
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/instance: piraeus-cs
+    app.kubernetes.io/name: piraeus-controller
+  name: piraeus-cs
+spec:
+  ports:
+  - name: piraeus-cs
+    port: 3370
+    protocol: TCP
+    targetPort: 3370
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: piraeus-cs
+subsets:
+- addresses:
+  - ip: 192.168.254.1
+  - ip: 192.168.254.2
+  - ip: 192.168.254.3
+  ports:
+  - name: piraeus-cs
+    port: 3370
+    protocol: TCP
+

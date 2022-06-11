@@ -1,0 +1,23 @@
+# Piraeus Controller Ingress
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: piraeus-cs
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    # nginx.ingress.kubernetes.io/backend-protocol: http
+    # cert-manager.io/cluster-issuer: k8s-ca-issuer
+spec:
+  rules:
+  - host: piraeus-cs.apps.k8s.local.local
+    http:
+      paths:
+      - backend:
+          serviceName: piraeus-cs
+          servicePort: 3370
+        path: /
+  # tls:
+  # - hosts:
+  #   - piraeus-cs.apps.k8s.local.local
+  #   secretName: piraues-controller-ingress-cert

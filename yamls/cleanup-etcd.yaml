@@ -1,0 +1,48 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: cleanup-etcd
+  labels:
+    cleanup: etcd
+spec:
+  backoffLimit: 5
+  activeDeadlineSeconds: 20
+  ttlSecondsAfterFinished: 5
+  completions: 3
+  parallelism: 3
+  template:
+    spec:
+      containers:
+      - name: clean
+        image: daocloud.io/centos:7
+        command:
+          - sh 
+          - -c 
+          - 'rm -vfr /data/*'
+        volumeMounts:
+          - mountPath: /data 
+            name: data
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: node-role.kubernetes.io/master
+                operator: Exists
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: cleanup
+                operator: In
+                values:
+                - etcd
+            topologyKey: kubernetes.io/hostname
+      tolerations:
+      - effect: NoSchedule
+        operator: Exists
+      volumes:
+        - name: data
+          hostPath:
+            path: /var/lib/linstor-etcd
+      restartPolicy: Never

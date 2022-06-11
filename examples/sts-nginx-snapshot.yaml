@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: sts-nginx-snapshot
+  labels:
+    app: sts-nginx-snapshot
+spec:
+  ports:
+  - port: 80
+    name: web
+  clusterIP: None
+  selector:
+    app: sts-nginx-snapshot
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: sts-nginx-snapshot
+spec:
+  selector:
+    matchLabels:
+      app: sts-nginx-snapshot 
+  serviceName: "sts-nginx-snapshot"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: sts-nginx-snapshot
+        linstor.csi.linbit.com/on-storage-lost: remove
+    spec:
+      terminationGracePeriodSeconds: 0
+      containers:
+      - name: nginx
+        image: daocloud.io/nginx:alpine
+        ports:
+        - containerPort: 80
+          name: web
+        volumeMounts:
+        - name: data
+          mountPath: /usr/share/nginx/html
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: pvc-from-pvc-r2-snapshot
+          
+          

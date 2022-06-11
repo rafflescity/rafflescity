@@ -1,0 +1,9 @@
+spec:
+  template:
+    spec:
+      containers:
+      - name: linstor-controller
+        ports:
+        - containerPort: 3370
+          protocol: TCP
+          hostPort: 3370
