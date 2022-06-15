@@ -9,8 +9,7 @@ spec:
     requests:
       storage: 1Gi
   volumeMode: Filesystem
-  storageClassName: piraeus-dflt-r2
+  storageClassName: piraeus-local-dflt-r2
   dataSource:
     name: pvc-r2
     kind: PersistentVolumeClaim
-    apiGroup: v1
