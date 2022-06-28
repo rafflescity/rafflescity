@@ -10,7 +10,7 @@ parameters:
   layerlist: drbd storage
   placementCount: "2"
   placementPolicy: AutoPlace
-  allowRemoteVolumeAccess: "false"
+  allowRemoteVolumeAccess: "true"
   disklessOnRemaining: "false"
   mountOpts: noatime,discard
   storagePool: DfltStorPool

@@ -1,46 +1,46 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: sts-nginx-clone
+  name: sts-mysql-snapshot
   labels:
-    app: sts-nginx-clone
+    app: sts-mysql-snapshot
 spec:
   ports:
   - port: 80
     name: web
   clusterIP: None
   selector:
-    app: sts-nginx-clone
+    app: sts-mysql-snapshot
 ---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: sts-nginx-clone
+  name: sts-mysql-snapshot
 spec:
   selector:
     matchLabels:
-      app: sts-nginx-clone 
-  serviceName: "sts-nginx-clone"
+      app: sts-mysql-snapshot 
+  serviceName: sts-mysql-snapshot
   replicas: 1
   template:
     metadata:
       labels:
-        app: sts-nginx-clone
+        app: sts-mysql-snapshot
         linstor.csi.linbit.com/on-storage-lost: remove
     spec:
       terminationGracePeriodSeconds: 0
       containers:
-      - name: nginx
-        image: daocloud.io/nginx:alpine
+      - name: mysql
+        image: daocloud.io/mysql
         ports:
         - containerPort: 80
           name: web
         volumeMounts:
         - name: data
-          mountPath: /usr/share/nginx/html
+          mountPath: /var/lib/mysql
       volumes:
       - name: data
         persistentVolumeClaim:
-          claimName: pvc-from-pvc-r2-clone
+          claimName: pvc-from-pvc-r2-snapshot
           
           
