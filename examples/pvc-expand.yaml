@@ -9,4 +9,4 @@ spec:
     requests:
       storage: 2Gi
   volumeMode: Filesystem
-  storageClassName: piraeus-local-dflt-r2
+  storageClassName: piraeus-local-lvmthin-r2

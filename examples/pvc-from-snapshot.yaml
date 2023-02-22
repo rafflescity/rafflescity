@@ -9,7 +9,7 @@ spec:
     requests:
       storage: 1Gi
   volumeMode: Filesystem
-  storageClassName: piraeus-dflt-r2
+  storageClassName: piraeus-lvmthin-r2
   # storageClassName: local-path
   dataSource:
     name: pvc-r2-snapshot

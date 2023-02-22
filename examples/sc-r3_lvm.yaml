@@ -1,0 +1,19 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: piraeus-lvmthin-r3
+provisioner: linstor.csi.linbit.com
+allowVolumeExpansion: true
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
+parameters:
+  layerlist: drbd storage
+  placementCount: "3"
+  placementPolicy: AutoPlace
+  allowRemoteVolumeAccess: "true"
+  disklessOnRemaining: "false"
+  csi.storage.k8s.io/fstype: ext4
+  property.linstor.csi.linbit.com/FileSystem/Type: ext4
+  property.linstor.csi.linbit.com/FileSystem/MkfsParams: -K
+  mountOpts: noatime,discard
+  storagePool: LvmThin

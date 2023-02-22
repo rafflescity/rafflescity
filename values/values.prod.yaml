@@ -1,0 +1,168 @@
+global:
+  imagePullPolicy: IfNotPresent
+etcd:
+  enabled: false
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: node-role.kubernetes.io/piraeus
+            operator: In
+            values:
+            - combined
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+          - key: app.kubernetes.io/name
+            operator: In
+            values:
+            - piraeus-etcd
+        topologyKey: kubernetes.io/hostname
+  tolerations:
+  - effect: NoSchedule
+    operator: Exists
+stork:
+  enabled: true
+  schedulerTag: v1.20.0
+  replicas: 3
+csi:
+  enabled: true
+  nodeAffinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: node-role.kubernetes.io/piraeus
+            operator: In
+            values:
+            - satellite
+            - combined
+  nodeTolerations:
+  - effect: NoSchedule
+    operator: Exists
+  controllerReplicas: 3
+  controllerAffinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: node-role.kubernetes.io/piraeus
+            operator: In
+            values:
+            - combined
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+          - key: app.kubernetes.io/name
+            operator: In
+            values:
+            - piraeus-csi
+          - key: app.kubernetes.io/component
+            operator: In
+            values:
+            - csi-controller
+        topologyKey: kubernetes.io/hostname
+  controllerTolerations:
+  - effect: NoSchedule
+    operator: Exists
+  enableTopology: true # k8s volume node affinity 
+linstorSslMethod: "helm" # <- If set to 'helm' or 'cert-manager' the certificates will be generated automatically
+linstorHttpsMethod: "helm" # <- If set to 'helm' or 'cert-manager' the certificates will be generated automatically
+operator:
+  replicas: 3 # <- number of replicas for the operator deployment
+  image: quay.m.daocloud.io/piraeusdatastore/piraeus-operator:v1.10.2
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: node-role.kubernetes.io/piraeus
+            operator: In
+            values:
+            - combined
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+          - key: name
+            operator: In
+            values:
+            - piraeus-operator
+        topologyKey: kubernetes.io/hostname
+  tolerations:
+  - effect: NoSchedule
+    operator: Exists
+  controller:
+    replicas: 3
+    enabled: true
+    dbConnectionURL: "k8s" # 使用 CRD
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+          - matchExpressions:
+            - key: node-role.kubernetes.io/piraeus
+              operator: In
+              values:
+              - combined
+      podAntiAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+            - key: app.kubernetes.io/name
+              operator: In
+              values:
+              - piraeus-controller
+          topologyKey: kubernetes.io/hostname
+    tolerations:
+    - operator: Exists
+      effect: NoSchedule
+  satelliteSet:
+    enabled: true
+    # storagePools:
+    #   lvmThinPools:
+    #   - name: DfltStorPool
+    #     thinVolume: thinpool
+    #     volumeGroup: linstor_thinpool
+    # automaticStorageType: None
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+          - matchExpressions:
+            - key: node-role.kubernetes.io/piraeus
+              operator: In
+              values:
+              - satellite
+              - combined
+    tolerations:
+    - operator: Exists
+      effect: NoSchedule
+    kernelModuleInjectionMode: Compile
+haController:
+  replicas: 3
+  enabled: true
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: node-role.kubernetes.io/piraeus
+            operator: In
+            values:
+            - combined
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+          - key: app.kubernetes.io/name
+            operator: In
+            values:
+            - piraeus-ha-controller
+        topologyKey: kubernetes.io/hostname
+  tolerations:
+  - operator: Exists
+    effect: NoSchedule
